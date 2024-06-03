@@ -9,6 +9,7 @@ describe("MyERC721", function() {
     // MyERC721コントラクトのファクトリーインスタンスを取得
     const MyERC721Factory = await ethers.getContractFactory("MyERC721");
     const MyERC721 = await MyERC721Factory.deploy('TestNFT', 'MYNFT');
+    return { MyERC721, owner, account1 };
   }
 
   describe("初期流通量とNFT作成のテスト", function() {
@@ -47,7 +48,7 @@ describe("MyERC721", function() {
       expect(await MyERC721.ownerOf(tokenId)).to.equal(owner.address);
     });
     it("account1からowner保有のNFTはtransferができないことの確認", async function () {
-      const { MyERC721, owner, account1 } = await loadFixture(depployFixture);
+      const { MyERC721, owner, account1 } = await loadFixture(deployFixture);
       // ownerを保有者とするNFTを作成する
       const txResp = await MyERC721.safeMint(owner.address, 'https://example.com/nft1.json');
       // TransferイベントからtokenIdを特定する
@@ -59,7 +60,7 @@ describe("MyERC721", function() {
       ).to.be.revertedWith('ERC721: caller is not token owner or approved');
     });
     it("NFT保有者がapproveすればaccount1からもNFTをtransferできることの確認", async function () {
-        const { MyERC721, owner, account1 } = await loadFixture(depployFixture);
+        const { MyERC721, owner, account1 } = await loadFixture(deployFixture);
         // ownerを保有者とするNFTを作成する
         const txResp = await MyERC721.safeMint(owner.address, 'https://example.com/nft1.json');
         // TransferイベントからtokenIdを特定する
