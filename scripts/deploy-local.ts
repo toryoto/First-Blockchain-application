@@ -12,6 +12,14 @@ async function main() {
   const myERC721 = await ethers.deployContract("MyERC721", ['MyERC721', 'MYERC721']);
   await myERC721.waitForDeployment();
   console.log(`myERC721 deployed to: ${myERC721.target}`);
+
+  const conduitController = await ethers.deployContract("ConduitController");
+  await conduitController.waitForDeployment();
+  const conduitControllerAddress = await conduitController.getAddress();
+  // Seaportのデプロイ
+  const seaport = await ethers.deployContract("Seaport", [conduitControllerAddress]);
+  await seaport.waitForDeployment();
+  console.log(`Seaport deployed to: ${seaport.target}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
