@@ -7,7 +7,7 @@ import {
   Text, TextInput, Title, Image, Badge
 } from '@mantine/core';
 import { IconCubePlus } from '@tabler/icons-react';
-import { MyERC721, MyERC721__factory } from "@/types";
+import { MyERC721, MyERC721__factory } from "../../types";
 
 type NFT = {
   tokenId: bigint,
@@ -17,7 +17,7 @@ type NFT = {
 };
 
 // デプロイしたMyERC721 Contractのアドレスを入力
-const contractAddress = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
+const contractAddress = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
 
 export default function MyNFT() {
 
@@ -28,6 +28,7 @@ export default function MyNFT() {
   const [myERC721Contract, setMyERC721Contract] = useState<MyERC721 | null>(null);
 
   // MyERC721のコントラクトのインスタンスをethers.jsを利用して生成
+  // signerの変更時、コントラクトを再生成
   useEffect(() => {
     // MyERC721コントラクトの取得
     const contract = MyERC721__factory.connect(contractAddress, signer);
@@ -53,11 +54,13 @@ export default function MyNFT() {
   const handleButtonClick = async () => {
     setLoading(true);
     try {
+      // inputでユーザが入力したウォレットアドレスをaccountに格納
       const account = ref.current!.value;
       // MyERC721コントラクトにNFT作成（safeMint）トランザクションを発行
       await myERC721Contract?.safeMint(account, 'https://example.com/nft.json');
       // 成功した場合はアラートを表示する
       setShowAlert(true);
+      // アラートメッセージにアドレスの最初の6文字と最後の2文字が含む
       setAlertMessage(`NFT minted and sent to the wallet ${account?.slice(0, 6) +
         '...' + account?.slice(-2)}. Enjoy your NFT!`)
     } finally {
@@ -65,12 +68,15 @@ export default function MyNFT() {
     }
   };
 
-  // 保有するNFTの一覧を生成
+  // 保有するNFTの一覧を生成する処理
+  // コントラクトかsingerに変更があった際に発火
   const [myNFTs, setMyNFTs] = useState<NFT[]>([]);
   // MyERC721コントラクトを呼び出して、自身が保有するNFTの情報を取得
   useEffect(() => {
     const fetchMyNFTs = async () => {
       const nfts = [];
+      // myERC721Contractがnullやundefinedの場合は.runnerにアクセスしてエラーになることを防ぐ
+      // runnerは、トランザクションの送信やコントラクトとのやり取りに使用される
       if (myERC721Contract && myERC721Contract.runner) {
         const myAddress = signer?.getAddress()!
         // 自分が保有するNFTの総数を確認
@@ -88,7 +94,9 @@ export default function MyNFT() {
         for (let i = 0; i < balance; i++) {
           // ERC721Enumerableのメソッドを利用して、インデックスから自身が保有するNFTのtokenIdを取得
           const tokenId = await myERC721Contract.tokenOfOwnerByIndex(myAddress, i);
+
           // NOTE：本来は下記のようにtokenURIからJson Metadataを取得しNFTのコンテンツ情報にアクセス
+          // コンテンツ情報はAWSやIPFSに保存
           // const tokenURI = await myERC721Contract.tokenURI(tokenId);
           // const response = await fetch(tokenURI);
           // const jsonMetaData = await response.json();
@@ -98,6 +106,7 @@ export default function MyNFT() {
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscingelit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
             image: `https://source.unsplash.com/300x200?glass&s=${tokenId}`
           }
+          // 自身が所有するNFTのtokeIdをnftのjsonデータと合体させて1つのJSONにまとめる
           nfts.push({ tokenId, ...jsonMetaData });
         }
         setMyNFTs(nfts);
