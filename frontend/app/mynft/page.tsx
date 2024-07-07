@@ -22,6 +22,7 @@ const contractAddress = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
 export default function MyNFT() {
 
   // アプリケーション全体のステータスとしてWeb3 providerを取得、設定
+  // 現在のMetaMaskアカウント情報格納
   const { signer } = useContext(Web3SignerContext);
 
   // MyERC721のコントラクトのインスタンスを保持するState

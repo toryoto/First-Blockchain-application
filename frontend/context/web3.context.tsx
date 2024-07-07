@@ -26,6 +26,7 @@ export const Web3SignerContextProvider = ({
 }) => {
   const [signer, setSigner] = useState<Signer | null>(null);
   return (
+    // 子コンポーネントがMetamaskのアカウント管理useStateを参照できるようにする
     <Web3SignerContext.Provider value={{ signer, setSigner }}>
       {children}
     </Web3SignerContext.Provider>
