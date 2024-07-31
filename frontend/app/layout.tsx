@@ -28,6 +28,7 @@ export default function RootLayout({
           <Web3SignerContextProvider>
             {/* アプリ全体で共通のレイアウトを適用する */}
             <AppMenu>
+              {/* AppMenuの子コンポーネントのみ参照 */}
               {children}
             </AppMenu>
           </Web3SignerContextProvider>

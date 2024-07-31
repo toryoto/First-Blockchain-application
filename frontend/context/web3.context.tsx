@@ -19,14 +19,11 @@ export const Web3SignerContext = createContext<
 
 
 // アプリケーションの各ページ、コンポーネントにステートへのアクセスを提供する
-export const Web3SignerContextProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+// React.ReactNodeはReactで子要素として許可されるすべての型を包含する型
+export const Web3SignerContextProvider = ({children}: {children: React.ReactNode}) => {
   const [signer, setSigner] = useState<Signer | null>(null);
   return (
-    // 子コンポーネントがMetamaskのアカウント管理useStateを参照できるようにする
+    // 子コンポーネントがMetamaskのアカウント管理を参照できるようにする
     <Web3SignerContext.Provider value={{ signer, setSigner }}>
       {children}
     </Web3SignerContext.Provider>
